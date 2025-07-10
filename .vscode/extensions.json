@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "basdp.language-gas-x86",
+    "xaver.clang-format",
+    "matepek.vscode-catch2-test-adapter"
+  ]
+}
