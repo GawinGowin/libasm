@@ -4,14 +4,25 @@ project(libasm C CXX ASM)
 set(CMAKE_CXX_COMPILER /usr/bin/c++)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -g3")
-set(CMAKE_ASM_COMPILER /usr/bin/nasm)
-set(CMAKE_ASM_FLAGS "-f elf64")
-set(CMAKE_ASM_COMPILE_OBJECT "<CMAKE_ASM_COMPILER> <FLAGS> <DEFINES> <INCLUDES> -o <OBJECT> <SOURCE>")
 
-## Assembly sources
-file(GLOB ASM_SOURCES "${CMAKE_SOURCE_DIR}/src/*.s")
+add_custom_target(build_libasm ALL
+    COMMAND make
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Building libasm.a using Makefile"
+)
 
-add_library(asm ${ASM_SOURCES})
+set(LIBASM_PATH ${CMAKE_SOURCE_DIR}/libasm.a)
+
+add_library(asm STATIC IMPORTED)
+set_target_properties(asm PROPERTIES IMPORTED_LOCATION ${LIBASM_PATH})
+
+add_dependencies(asm build_libasm)
+
+add_custom_target(clean_libasm
+    COMMAND make clean && rm -f ${LIBASM_PATH}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Cleaning libasm.a using Makefile"
+)
 
 find_package(GTest QUIET)
 if(NOT GTest_FOUND)
