@@ -12,10 +12,6 @@ set(CMAKE_ASM_COMPILE_OBJECT "<CMAKE_ASM_COMPILER> <FLAGS> <DEFINES> <INCLUDES> 
 file(GLOB ASM_SOURCES "${CMAKE_SOURCE_DIR}/src/*.s")
 
 add_library(libasm ${ASM_SOURCES})
-target_include_directories(
-  libasm
-  PUBLIC ${CMAKE_SOURCE_DIR}/include
-)
 
 find_package(GTest QUIET)
 if(NOT GTest_FOUND)

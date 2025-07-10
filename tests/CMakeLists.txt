@@ -14,7 +14,7 @@ else()
 endif()
 
 target_include_directories(libasmtest PRIVATE 
-  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/include
   ${gtest_SOURCE_DIR}
 )
 
