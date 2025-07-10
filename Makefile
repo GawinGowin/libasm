@@ -1,5 +1,4 @@
 NAME = libasm.a
-TEST = test_libasm
 
 BUILD_DIR = ./build
 
@@ -35,7 +34,8 @@ clean:
 
 .PHONY: fclean
 fclean: clean
-	rm -f $(NAME) $(TEST)
+	rm -f $(NAME)
+	rm -rf $(BUILD_DIR)
 
 .PHONY: re
 re: fclean all
