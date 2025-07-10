@@ -8,9 +8,9 @@ file(GLOB_RECURSE TEST_SOURCES
 add_executable(libasmtest ${TEST_SOURCES})
 
 if(GTest_FOUND)
-  target_link_libraries(libasmtest libasm GTest::GTest GTest::Main)
+  target_link_libraries(libasmtest asm GTest::GTest GTest::Main)
 else()
-  target_link_libraries(libasmtest libasm gtest gtest_main)
+  target_link_libraries(libasmtest asm gtest gtest_main)
 endif()
 
 target_include_directories(libasmtest PRIVATE 

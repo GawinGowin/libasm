@@ -11,7 +11,7 @@ set(CMAKE_ASM_COMPILE_OBJECT "<CMAKE_ASM_COMPILER> <FLAGS> <DEFINES> <INCLUDES> 
 ## Assembly sources
 file(GLOB ASM_SOURCES "${CMAKE_SOURCE_DIR}/src/*.s")
 
-add_library(libasm ${ASM_SOURCES})
+add_library(asm ${ASM_SOURCES})
 
 find_package(GTest QUIET)
 if(NOT GTest_FOUND)
