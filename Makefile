@@ -15,7 +15,7 @@ SRCS += ft_strdup.s
 OBJS := $(addprefix $(SRCDIR)/, $(SRCS:.s=.o))
 
 NASM = nasm
-NASMFLAGS = -f elf64
+NASMFLAGS = -f elf64 -g -F dwarf
 AR = ar
 ARFLAGS = rcs
 
