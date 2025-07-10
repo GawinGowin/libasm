@@ -128,3 +128,68 @@ TEST_F(FtStrcmpTest, compare_with_stdlib) {
     }
   }
 }
+
+
+TEST_F(FtStrcmpTest, very_long_strings) {
+  // Test with very long strings
+  std::string long_str1(10000, 'a');
+  std::string long_str2(10000, 'a');
+  std::string long_str3(10000, 'b');
+  
+  int ft_result = ft_strcmp(long_str1.c_str(), long_str2.c_str());
+  int std_result = strcmp(long_str1.c_str(), long_str2.c_str());
+  EXPECT_EQ(ft_result, std_result);
+  
+  ft_result = ft_strcmp(long_str1.c_str(), long_str3.c_str());
+  std_result = strcmp(long_str1.c_str(), long_str3.c_str());
+  EXPECT_EQ((ft_result < 0), (std_result < 0));
+}
+
+TEST_F(FtStrcmpTest, boundary_characters) {
+  // Test with boundary ASCII characters
+  const char *str1 = "\x00\x01\x02";
+  const char *str2 = "\x00\x01\x02";
+  int ft_result = ft_strcmp(str1, str2);
+  int std_result = strcmp(str1, str2);
+  EXPECT_EQ(ft_result, std_result);
+  
+  const char *str3 = "\xFF\xFE\xFD";
+  const char *str4 = "\xFF\xFE\xFD";
+  ft_result = ft_strcmp(str3, str4);
+  std_result = strcmp(str3, str4);
+  EXPECT_EQ(ft_result, std_result);
+}
+
+TEST_F(FtStrcmpTest, errno_not_modified) {
+  // Test that errno is not modified during normal operation
+  const char *str1 = "hello";
+  const char *str2 = "world";
+  
+  // Set errno to a specific value
+  errno = EINVAL;
+  int ft_result = ft_strcmp(str1, str2);
+  int ft_errno = errno;
+  
+  errno = EINVAL;
+  int std_result = strcmp(str1, str2);
+  int std_errno = errno;
+  
+  // Both should preserve errno
+  EXPECT_EQ(ft_errno, std_errno);
+  EXPECT_EQ(ft_errno, EINVAL);
+  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  
+  // Test with equal strings
+  errno = EACCES;
+  ft_result = ft_strcmp(str1, str1);
+  ft_errno = errno;
+  
+  errno = EACCES;
+  std_result = strcmp(str1, str1);
+  std_errno = errno;
+  
+  EXPECT_EQ(ft_errno, std_errno);
+  EXPECT_EQ(ft_errno, EACCES);
+  EXPECT_EQ(ft_result, std_result);
+  EXPECT_EQ(ft_result, 0);
+}

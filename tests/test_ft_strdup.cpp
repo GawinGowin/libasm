@@ -86,3 +86,87 @@ TEST_F(FtStrdupTest, compare_with_stdlib) {
     free(std_result);
   }
 }
+
+
+TEST_F(FtStrdupTest, very_long_string) {
+  // Test with very long strings
+  std::string long_str(8000, 'x');
+  char *ft_result = ft_strdup(long_str.c_str());
+  char *std_result = strdup(long_str.c_str());
+  
+  ASSERT_NE(ft_result, nullptr);
+  ASSERT_NE(std_result, nullptr);
+  
+  EXPECT_STREQ(ft_result, std_result);
+  EXPECT_STREQ(ft_result, long_str.c_str());
+  
+  free(ft_result);
+  free(std_result);
+}
+
+TEST_F(FtStrdupTest, boundary_characters) {
+  // Test with boundary ASCII characters
+  const char boundary_chars[] = "\x01\x02\x7F\xFF";
+  char *ft_result = ft_strdup(boundary_chars);
+  char *std_result = strdup(boundary_chars);
+  
+  ASSERT_NE(ft_result, nullptr);
+  ASSERT_NE(std_result, nullptr);
+  
+  EXPECT_STREQ(ft_result, std_result);
+  EXPECT_STREQ(ft_result, boundary_chars);
+  
+  free(ft_result);
+  free(std_result);
+}
+
+TEST_F(FtStrdupTest, errno_behavior) {
+  // Test errno behavior during normal operation
+  const char *test_str = "hello world";
+  
+  // Set errno to a specific value
+  errno = EINVAL;
+  char *ft_result = ft_strdup(test_str);
+  int ft_errno = errno;
+  
+  errno = EINVAL;
+  char *std_result = strdup(test_str);
+  int std_errno = errno;
+  
+  // Both should succeed and preserve errno (or both should fail with same errno)
+  if (ft_result != nullptr && std_result != nullptr) {
+    // Success case - errno should be preserved
+    EXPECT_EQ(ft_errno, std_errno);
+    EXPECT_STREQ(ft_result, std_result);
+    EXPECT_STREQ(ft_result, test_str);
+    free(ft_result);
+    free(std_result);
+  } else {
+    // Failure case - both should fail with same errno
+    EXPECT_EQ(ft_result, nullptr);
+    EXPECT_EQ(std_result, nullptr);
+    EXPECT_EQ(ft_errno, std_errno);
+    // Don't free NULL pointers
+  }
+  
+  // Test with empty string
+  errno = EACCES;
+  ft_result = ft_strdup("");
+  ft_errno = errno;
+  
+  errno = EACCES;
+  std_result = strdup("");
+  std_errno = errno;
+  
+  if (ft_result != nullptr && std_result != nullptr) {
+    EXPECT_EQ(ft_errno, std_errno);
+    EXPECT_STREQ(ft_result, std_result);
+    EXPECT_STREQ(ft_result, "");
+    free(ft_result);
+    free(std_result);
+  } else {
+    EXPECT_EQ(ft_result, nullptr);
+    EXPECT_EQ(std_result, nullptr);
+    EXPECT_EQ(ft_errno, std_errno);
+  }
+}
