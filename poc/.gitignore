@@ -1,0 +1,6 @@
+*
+**/*
+!.gitignore
+!practice*.s
+!practice*.c
+!practice*.h
