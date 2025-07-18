@@ -8,3 +8,5 @@ my_memcpy:
   cld
   rep movsb
   ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits
