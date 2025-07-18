@@ -1,18 +1,15 @@
 section .text
-    global ft_strlen
+  global ft_strlen
 
 ft_strlen:
-    push rbp
-    mov rbp, rsp
-    
-    mov rax, 0          ; counter = 0
-    
+  ; rdi points to the string
+  mov rax, 0
+
 .loop:
-    cmp byte [rdi + rax], 0    ; check if str[i] == '\0'
-    je .done                   ; if yes, exit loop
-    inc rax                    ; counter++
-    jmp .loop                  ; continue loop
-    
+  cmp byte [rdi + rax], 0
+  je .done
+  inc rax
+  jmp .loop
+
 .done:
-    leave
-    ret
+  ret
