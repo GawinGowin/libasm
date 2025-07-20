@@ -23,6 +23,6 @@ ft_strcmp:
 
 .not_equal:
   movzx rax, al
-  movzx rbx, bl
-  sub rax, rbx
+  movzx rdx, bl
+  sub rax, rdx
   ret
