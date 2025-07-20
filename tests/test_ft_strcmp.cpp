@@ -36,21 +36,21 @@ TEST_F(FtStrcmpTest, different_strings) {
   const char *str2 = "b";
   int ft_result = ft_strcmp(str1, str2);
   int std_result = strcmp(str1, str2);
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
   
   ft_result = ft_strcmp(str2, str1);
   std_result = strcmp(str2, str1);
-  EXPECT_EQ((ft_result > 0), (std_result > 0));
+  EXPECT_EQ(ft_result, std_result);
   
   const char *hello = "hello";
   const char *world = "world";
   ft_result = ft_strcmp(hello, world);
   std_result = strcmp(hello, world);
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
   
   ft_result = ft_strcmp(world, hello);
   std_result = strcmp(world, hello);
-  EXPECT_EQ((ft_result > 0), (std_result > 0));
+  EXPECT_EQ(ft_result, std_result);
 }
 
 TEST_F(FtStrcmpTest, different_lengths) {
@@ -58,21 +58,21 @@ TEST_F(FtStrcmpTest, different_lengths) {
   const char *long_str = "abcd";
   int ft_result = ft_strcmp(short_str, long_str);
   int std_result = strcmp(short_str, long_str);
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
   
   ft_result = ft_strcmp(long_str, short_str);
   std_result = strcmp(long_str, short_str);
-  EXPECT_EQ((ft_result > 0), (std_result > 0));
+  EXPECT_EQ(ft_result, std_result);
   
   const char *empty = "";
   const char *non_empty = "a";
   ft_result = ft_strcmp(empty, non_empty);
   std_result = strcmp(empty, non_empty);
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
   
   ft_result = ft_strcmp(non_empty, empty);
   std_result = strcmp(non_empty, empty);
-  EXPECT_EQ((ft_result > 0), (std_result > 0));
+  EXPECT_EQ(ft_result, std_result);
 }
 
 TEST_F(FtStrcmpTest, case_sensitivity) {
@@ -81,7 +81,7 @@ TEST_F(FtStrcmpTest, case_sensitivity) {
   int ft_result = ft_strcmp(upper, lower);
   int std_result = strcmp(upper, lower);
   EXPECT_EQ((ft_result != 0), (std_result != 0));
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
 }
 
 TEST_F(FtStrcmpTest, special_characters) {
@@ -142,7 +142,7 @@ TEST_F(FtStrcmpTest, very_long_strings) {
   
   ft_result = ft_strcmp(long_str1.c_str(), long_str3.c_str());
   std_result = strcmp(long_str1.c_str(), long_str3.c_str());
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
 }
 
 TEST_F(FtStrcmpTest, boundary_characters) {
@@ -177,7 +177,7 @@ TEST_F(FtStrcmpTest, errno_not_modified) {
   // Both should preserve errno
   EXPECT_EQ(ft_errno, std_errno);
   EXPECT_EQ(ft_errno, EINVAL);
-  EXPECT_EQ((ft_result < 0), (std_result < 0));
+  EXPECT_EQ(ft_result, std_result);
   
   // Test with equal strings
   errno = EACCES;
