@@ -12,15 +12,19 @@ SRCS += ft_write.s
 SRCS += ft_read.s
 SRCS += ft_strdup.s
 
+B_SRCS :=
+
 OBJS := $(addprefix $(SRCDIR)/, $(SRCS:.s=.o))
+B_OBJS := $(addprefix $(SRCDIR)/, $(B_SRCS:_bonus.s=_bonus.o))
 
 NASM = nasm
 NASMFLAGS = -f elf64 -g -F dwarf
 AR = ar
 ARFLAGS = rcs
+BONUS_KEEP = .bonus_keep
 
 .PHONY: all
-all: $(NAME)
+all:  $(NAME)
 
 $(NAME): $(OBJS)
 	$(AR) $(ARFLAGS) $(NAME) $(OBJS)
@@ -28,9 +32,19 @@ $(NAME): $(OBJS)
 %.o: %.s
 	$(NASM) $(NASMFLAGS) $< -o $@
 
+.PHONY: bonus
+bonus: $(BONUS_KEEP)
+
+$(BONUS_KEEP): $(NAME) $(B_OBJS)
+	$(AR) $(ARFLAGS) $(NAME) $(B_OBJS)
+	touch $(BONUS_KEEP)
+
+%_bonus.o: %_bonus.s
+	$(NASM) $(NASMFLAGS) $< -o $@
+
 .PHONY: clean
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(B_OBJS) $(BONUS_KEEP)
 
 .PHONY: fclean
 fclean: clean

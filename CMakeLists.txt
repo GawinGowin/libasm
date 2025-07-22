@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -g3")
 
 add_custom_target(build_libasm ALL
-    COMMAND make
+    COMMAND make bonus
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Building libasm.a using Makefile"
 )
