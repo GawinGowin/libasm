@@ -1,80 +1,87 @@
 #include <cstring>
+#include <errno.h>
 #include <gtest/gtest.h>
+#include <vector>
 
 extern "C" {
 #include "libasm.h"
 }
 
-class FtStrlenTest : public ::testing::Test {
+struct StringTestCase {
+  const char* str;
+  const char* description;
+};
+
+class FtStrlenTest : public ::testing::TestWithParam<StringTestCase> {
 protected:
   void SetUp() override {}
   void TearDown() override {}
+
+  // Helper to compare ft_strlen with standard strlen behavior
+  void compareStrlenBehavior(const char* str) {
+    size_t ft_result = ft_strlen(str);
+    size_t std_result = strlen(str);
+    EXPECT_EQ(ft_result, std_result);
+  }
 };
 
-TEST_F(FtStrlenTest, empty_string) {
-  const char *str = "";
-  EXPECT_EQ(ft_strlen(str), strlen(str));
-}
-
-TEST_F(FtStrlenTest, single_character) {
-  const char *str = "a";
-  EXPECT_EQ(ft_strlen(str), strlen(str));
-}
-
-TEST_F(FtStrlenTest, normal_string) {
-  const char *str1 = "hello";
-  const char *str2 = "world";
-  EXPECT_EQ(ft_strlen(str1), strlen(str1));
-  EXPECT_EQ(ft_strlen(str2), strlen(str2));
-}
-
-TEST_F(FtStrlenTest, long_string) {
-  std::string long_str(1000, 'a');
-  EXPECT_EQ(ft_strlen(long_str.c_str()), strlen(long_str.c_str()));
-}
-
-TEST_F(FtStrlenTest, string_with_spaces) {
-  const char *str = "hello world";
-  EXPECT_EQ(ft_strlen(str), strlen(str));
-}
-
-TEST_F(FtStrlenTest, string_with_special_chars) {
-  const char *special_str = "hello\n\t!@#";
-  EXPECT_EQ(ft_strlen(special_str), strlen(special_str));
-}
-
-TEST_F(FtStrlenTest, compare_with_stdlib) {
-  const char *test_strings[] = {"", "a", "hello", "world",
-                                "test123", "hello world", "123!@#"};
-  for (const char *str : test_strings) {
-    EXPECT_EQ(ft_strlen(str), strlen(str)) << "Failed for string: " << str;
-  }
-}
-
-
-TEST_F(FtStrlenTest, very_long_string) {
-  // Test with very long strings
-  std::string long_str(20000, 'y');
-  EXPECT_EQ(ft_strlen(long_str.c_str()), strlen(long_str.c_str()));
-  EXPECT_EQ(ft_strlen(long_str.c_str()), 20000);
-}
-
-TEST_F(FtStrlenTest, boundary_characters) {
-  // Test with boundary ASCII characters
-  const char boundary_chars[] = "\x01\x02\x7F\xFF";
-  EXPECT_EQ(ft_strlen(boundary_chars), strlen(boundary_chars));
+// Parameterized test data
+const std::vector<StringTestCase> string_test_cases = {
+  // Basic cases
+  {"", "empty_string"},
+  {"a", "single_character"},
+  {"hello", "normal_string"},
+  {"world", "another_normal_string"},
+  {"test123", "alphanumeric_string"},
   
-  // Test string with null byte in middle (should stop at first null)
-  const char null_in_middle[] = "hello\0world";
-  EXPECT_EQ(ft_strlen(null_in_middle), strlen(null_in_middle));
-  EXPECT_EQ(ft_strlen(null_in_middle), 5);
+  // Special characters
+  {"hello world", "string_with_spaces"},
+  {"hello\n\t!@#", "string_with_special_chars"},
+  {"123!@#", "numeric_with_special_chars"},
+  {"\x01\x02\x7F\xFF", "boundary_ascii_characters"},
+  
+  // Edge cases
+  {"hello\0world", "string_with_embedded_null"},
+  {"x", "minimal_single_char"},
+  {"ab", "two_characters"},
+  {"abc", "three_characters"},
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    StringLength,
+    FtStrlenTest,
+    ::testing::ValuesIn(string_test_cases),
+    [](const testing::TestParamInfo<StringTestCase>& info) {
+      return info.param.description;
+    }
+);
+
+TEST_P(FtStrlenTest, string_length) {
+  const auto& test_case = GetParam();
+  compareStrlenBehavior(test_case.str);
 }
 
-TEST_F(FtStrlenTest, errno_not_modified) {
-  // Test that errno is not modified during normal operation
-  const char *test_str = "hello world";
+// Non-parameterized tests for special scenarios
+
+TEST_F(FtStrlenTest, very_long_strings) {
+  std::string long_str1(1000, 'a');
+  std::string long_str2(20000, 'y');
+  std::string long_str3(50000, 'z');
   
-  // Set errno to a specific value
+  compareStrlenBehavior(long_str1.c_str());
+  compareStrlenBehavior(long_str2.c_str());
+  compareStrlenBehavior(long_str3.c_str());
+  
+  // Verify specific lengths
+  EXPECT_EQ(ft_strlen(long_str1.c_str()), 1000);
+  EXPECT_EQ(ft_strlen(long_str2.c_str()), 20000);
+  EXPECT_EQ(ft_strlen(long_str3.c_str()), 50000);
+}
+
+TEST_F(FtStrlenTest, errno_preservation) {
+  const char* test_str = "hello world";
+  
+  // Test errno preservation with normal string
   errno = EINVAL;
   size_t ft_result = ft_strlen(test_str);
   int ft_errno = errno;
@@ -83,12 +90,11 @@ TEST_F(FtStrlenTest, errno_not_modified) {
   size_t std_result = strlen(test_str);
   int std_errno = errno;
   
-  // Both should preserve errno
   EXPECT_EQ(ft_errno, std_errno);
   EXPECT_EQ(ft_errno, EINVAL);
   EXPECT_EQ(ft_result, std_result);
   
-  // Test with empty string
+  // Test errno preservation with empty string
   errno = EACCES;
   ft_result = ft_strlen("");
   ft_errno = errno;
@@ -102,7 +108,7 @@ TEST_F(FtStrlenTest, errno_not_modified) {
   EXPECT_EQ(ft_result, std_result);
   EXPECT_EQ(ft_result, 0);
   
-  // Test with very long string
+  // Test errno preservation with very long string
   std::string long_str(1000, 'x');
   errno = ENOENT;
   ft_result = ft_strlen(long_str.c_str());
@@ -116,4 +122,18 @@ TEST_F(FtStrlenTest, errno_not_modified) {
   EXPECT_EQ(ft_errno, ENOENT);
   EXPECT_EQ(ft_result, std_result);
   EXPECT_EQ(ft_result, 1000);
+}
+
+TEST_F(FtStrlenTest, null_termination_behavior) {
+  // Test string with null byte in middle (should stop at first null)
+  const char null_in_middle[] = "hello\0world";
+  compareStrlenBehavior(null_in_middle);
+  EXPECT_EQ(ft_strlen(null_in_middle), 5);
+  
+  // Test strings with various null positions
+  const char null_at_start[] = "\0hello";
+  const char null_at_end[] = "hello\0";
+  
+  EXPECT_EQ(ft_strlen(null_at_start), 0);
+  EXPECT_EQ(ft_strlen(null_at_end), 5);
 }
