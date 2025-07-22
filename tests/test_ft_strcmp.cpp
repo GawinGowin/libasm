@@ -1,171 +1,104 @@
 #include <cstring>
+#include <errno.h>
 #include <gtest/gtest.h>
+#include <tuple>
+#include <vector>
 
 extern "C" {
 #include "libasm.h"
 }
 
-class FtStrcmpTest : public ::testing::Test {
+struct StringCompareTestCase {
+  const char* str1;
+  const char* str2;
+  const char* description;
+};
+
+class FtStrcmpTest : public ::testing::TestWithParam<StringCompareTestCase> {
 protected:
   void SetUp() override {}
   void TearDown() override {}
-};
 
-TEST_F(FtStrcmpTest, equal_strings) {
-  const char *str1 = "hello";
-  const char *str2 = "hello";
-  int ft_result = ft_strcmp(str1, str2);
-  int std_result = strcmp(str1, str2);
-  EXPECT_EQ(ft_result, std_result);
-  
-  const char *empty1 = "";
-  const char *empty2 = "";
-  ft_result = ft_strcmp(empty1, empty2);
-  std_result = strcmp(empty1, empty2);
-  EXPECT_EQ(ft_result, std_result);
-  
-  const char *single1 = "a";
-  const char *single2 = "a";
-  ft_result = ft_strcmp(single1, single2);
-  std_result = strcmp(single1, single2);
-  EXPECT_EQ(ft_result, std_result);
-}
-
-TEST_F(FtStrcmpTest, different_strings) {
-  const char *str1 = "a";
-  const char *str2 = "b";
-  int ft_result = ft_strcmp(str1, str2);
-  int std_result = strcmp(str1, str2);
-  EXPECT_EQ(ft_result, std_result);
-  
-  ft_result = ft_strcmp(str2, str1);
-  std_result = strcmp(str2, str1);
-  EXPECT_EQ(ft_result, std_result);
-  
-  const char *hello = "hello";
-  const char *world = "world";
-  ft_result = ft_strcmp(hello, world);
-  std_result = strcmp(hello, world);
-  EXPECT_EQ(ft_result, std_result);
-  
-  ft_result = ft_strcmp(world, hello);
-  std_result = strcmp(world, hello);
-  EXPECT_EQ(ft_result, std_result);
-}
-
-TEST_F(FtStrcmpTest, different_lengths) {
-  const char *short_str = "abc";
-  const char *long_str = "abcd";
-  int ft_result = ft_strcmp(short_str, long_str);
-  int std_result = strcmp(short_str, long_str);
-  EXPECT_EQ(ft_result, std_result);
-  
-  ft_result = ft_strcmp(long_str, short_str);
-  std_result = strcmp(long_str, short_str);
-  EXPECT_EQ(ft_result, std_result);
-  
-  const char *empty = "";
-  const char *non_empty = "a";
-  ft_result = ft_strcmp(empty, non_empty);
-  std_result = strcmp(empty, non_empty);
-  EXPECT_EQ(ft_result, std_result);
-  
-  ft_result = ft_strcmp(non_empty, empty);
-  std_result = strcmp(non_empty, empty);
-  EXPECT_EQ(ft_result, std_result);
-}
-
-TEST_F(FtStrcmpTest, case_sensitivity) {
-  const char *upper = "Hello";
-  const char *lower = "hello";
-  int ft_result = ft_strcmp(upper, lower);
-  int std_result = strcmp(upper, lower);
-  EXPECT_EQ((ft_result != 0), (std_result != 0));
-  EXPECT_EQ(ft_result, std_result);
-}
-
-TEST_F(FtStrcmpTest, special_characters) {
-  const char *str1 = "test\n";
-  const char *str2 = "test\n";
-  int ft_result = ft_strcmp(str1, str2);
-  int std_result = strcmp(str1, str2);
-  EXPECT_EQ(ft_result, std_result);
-  
-  const char *str3 = "test\n";
-  const char *str4 = "test\t";
-  ft_result = ft_strcmp(str3, str4);
-  std_result = strcmp(str3, str4);
-  EXPECT_EQ((ft_result != 0), (std_result != 0));
-  
-  const char *special1 = "!@#";
-  const char *special2 = "!@#";
-  ft_result = ft_strcmp(special1, special2);
-  std_result = strcmp(special1, special2);
-  EXPECT_EQ(ft_result, std_result);
-}
-
-TEST_F(FtStrcmpTest, compare_with_stdlib) {
-  const char *test_pairs[][2] = {
-      {"", ""},        {"a", "a"},         {"hello", "hello"},
-      {"a", "b"},      {"hello", "world"}, {"abc", "abcd"},
-      {"abcd", "abc"}, {"Hello", "hello"}, {"test123", "test456"},
-      {"", "nonempty"}};
-
-  for (auto &pair : test_pairs) {
-    int ft_result = ft_strcmp(pair[0], pair[1]);
-    int std_result = strcmp(pair[0], pair[1]);
-
-    // Check if signs are the same
+  // Helper to compare ft_strcmp with standard strcmp behavior
+  void compareStringBehavior(const char* str1, const char* str2) {
+    int ft_result = ft_strcmp(str1, str2);
+    int std_result = strcmp(str1, str2);
+    
+    // Check if signs match (same comparison result semantics)
     if (ft_result == 0) {
-      EXPECT_EQ(std_result, 0)
-          << "Failed for: " << pair[0] << " vs " << pair[1];
+      EXPECT_EQ(std_result, 0);
     } else if (ft_result > 0) {
-      EXPECT_GT(std_result, 0)
-          << "Failed for: " << pair[0] << " vs " << pair[1];
+      EXPECT_GT(std_result, 0);
     } else {
-      EXPECT_LT(std_result, 0)
-          << "Failed for: " << pair[0] << " vs " << pair[1];
+      EXPECT_LT(std_result, 0);
     }
   }
+};
+
+// Parameterized test data
+const std::vector<StringCompareTestCase> string_test_cases = {
+  // Equal strings
+  {"", "", "empty_strings"},
+  {"a", "a", "single_equal_chars"},
+  {"hello", "hello", "equal_strings"},
+  {"test123", "test123", "equal_alphanumeric"},
+  {"!@#$%", "!@#$%", "equal_special_chars"},
+  {"test\n\t", "test\n\t", "equal_with_whitespace"},
+  
+  // Different strings - first less than second
+  {"a", "b", "single_char_a_less_b"},
+  {"abc", "abd", "string_difference_at_end"},
+  {"hello", "world", "completely_different"},
+  {"", "non-empty", "empty_vs_non_empty"},
+  {"abc", "abcd", "prefix_relationship"},
+  {"Hello", "hello", "case_difference"},
+  {"test\n", "test\t", "whitespace_difference"},
+  
+  // Different strings - first greater than second
+  {"b", "a", "single_char_b_greater_a"},
+  {"abd", "abc", "string_difference_at_end_reverse"},
+  {"world", "hello", "completely_different_reverse"},
+  {"non-empty", "", "non_empty_vs_empty"},
+  {"abcd", "abc", "longer_vs_shorter"},
+  {"hello", "Hello", "case_difference_reverse"},
+  
+  // Special cases
+  {"\x01\x02", "\x01\x02", "binary_equal"},
+  {"\x01", "\x02", "binary_different"},
+  {"\xFF\xFE", "\xFF\xFE", "high_ASCII_equal"},
+  {"\xFF", "\xFE", "high_ASCII_different"},
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    StringComparison,
+    FtStrcmpTest,
+    ::testing::ValuesIn(string_test_cases),
+    [](const testing::TestParamInfo<StringCompareTestCase>& info) {
+      return info.param.description;
+    }
+);
+
+TEST_P(FtStrcmpTest, string_comparison) {
+  const auto& test_case = GetParam();
+  compareStringBehavior(test_case.str1, test_case.str2);
 }
 
+// Non-parameterized tests for special scenarios
 
 TEST_F(FtStrcmpTest, very_long_strings) {
-  // Test with very long strings
   std::string long_str1(10000, 'a');
   std::string long_str2(10000, 'a');
   std::string long_str3(10000, 'b');
   
-  int ft_result = ft_strcmp(long_str1.c_str(), long_str2.c_str());
-  int std_result = strcmp(long_str1.c_str(), long_str2.c_str());
-  EXPECT_EQ(ft_result, std_result);
-  
-  ft_result = ft_strcmp(long_str1.c_str(), long_str3.c_str());
-  std_result = strcmp(long_str1.c_str(), long_str3.c_str());
-  EXPECT_EQ(ft_result, std_result);
+  compareStringBehavior(long_str1.c_str(), long_str2.c_str());
+  compareStringBehavior(long_str1.c_str(), long_str3.c_str());
 }
 
-TEST_F(FtStrcmpTest, boundary_characters) {
-  // Test with boundary ASCII characters
-  const char *str1 = "\x00\x01\x02";
-  const char *str2 = "\x00\x01\x02";
-  int ft_result = ft_strcmp(str1, str2);
-  int std_result = strcmp(str1, str2);
-  EXPECT_EQ(ft_result, std_result);
+TEST_F(FtStrcmpTest, errno_preservation) {
+  const char* str1 = "hello";
+  const char* str2 = "world";
   
-  const char *str3 = "\xFF\xFE\xFD";
-  const char *str4 = "\xFF\xFE\xFD";
-  ft_result = ft_strcmp(str3, str4);
-  std_result = strcmp(str3, str4);
-  EXPECT_EQ(ft_result, std_result);
-}
-
-TEST_F(FtStrcmpTest, errno_not_modified) {
-  // Test that errno is not modified during normal operation
-  const char *str1 = "hello";
-  const char *str2 = "world";
-  
-  // Set errno to a specific value
+  // Test errno preservation with different strings
   errno = EINVAL;
   int ft_result = ft_strcmp(str1, str2);
   int ft_errno = errno;
@@ -174,12 +107,11 @@ TEST_F(FtStrcmpTest, errno_not_modified) {
   int std_result = strcmp(str1, str2);
   int std_errno = errno;
   
-  // Both should preserve errno
   EXPECT_EQ(ft_errno, std_errno);
   EXPECT_EQ(ft_errno, EINVAL);
-  EXPECT_EQ(ft_result, std_result);
+  compareStringBehavior(str1, str2);
   
-  // Test with equal strings
+  // Test errno preservation with equal strings
   errno = EACCES;
   ft_result = ft_strcmp(str1, str1);
   ft_errno = errno;
@@ -190,6 +122,6 @@ TEST_F(FtStrcmpTest, errno_not_modified) {
   
   EXPECT_EQ(ft_errno, std_errno);
   EXPECT_EQ(ft_errno, EACCES);
-  EXPECT_EQ(ft_result, std_result);
   EXPECT_EQ(ft_result, 0);
+  EXPECT_EQ(std_result, 0);
 }
