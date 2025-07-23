@@ -14,7 +14,7 @@ struct StringCompareTestCase {
   const char* description;
 };
 
-class FtStrcmpTest : public ::testing::TestWithParam<StringCompareTestCase> {
+class FtStrcmpTestArgs : public ::testing::TestWithParam<StringCompareTestCase> {
 protected:
   void SetUp() override {}
   void TearDown() override {}
@@ -70,22 +70,22 @@ const std::vector<StringCompareTestCase> string_test_cases = {
 };
 
 INSTANTIATE_TEST_SUITE_P(
-    StringComparison,
     FtStrcmpTest,
+    FtStrcmpTestArgs,
     ::testing::ValuesIn(string_test_cases),
     [](const testing::TestParamInfo<StringCompareTestCase>& info) {
       return info.param.description;
     }
 );
 
-TEST_P(FtStrcmpTest, string_comparison) {
+TEST_P(FtStrcmpTestArgs, string_comparison) {
   const auto& test_case = GetParam();
   compareStringBehavior(test_case.str1, test_case.str2);
 }
 
 // Non-parameterized tests for special scenarios
 
-TEST_F(FtStrcmpTest, very_long_strings) {
+TEST_F(FtStrcmpTestArgs, very_long_strings) {
   std::string long_str1(10000, 'a');
   std::string long_str2(10000, 'a');
   std::string long_str3(10000, 'b');
@@ -94,7 +94,7 @@ TEST_F(FtStrcmpTest, very_long_strings) {
   compareStringBehavior(long_str1.c_str(), long_str3.c_str());
 }
 
-TEST_F(FtStrcmpTest, errno_preservation) {
+TEST_F(FtStrcmpTestArgs, errno_preservation) {
   const char* str1 = "hello";
   const char* str2 = "world";
   

@@ -12,7 +12,7 @@ struct StringTestCase {
   const char* description;
 };
 
-class FtStrlenTest : public ::testing::TestWithParam<StringTestCase> {
+class FtStrlenTestArgs : public ::testing::TestWithParam<StringTestCase> {
 protected:
   void SetUp() override {}
   void TearDown() override {}
@@ -48,22 +48,22 @@ const std::vector<StringTestCase> string_test_cases = {
 };
 
 INSTANTIATE_TEST_SUITE_P(
-    StringLength,
     FtStrlenTest,
+    FtStrlenTestArgs,
     ::testing::ValuesIn(string_test_cases),
     [](const testing::TestParamInfo<StringTestCase>& info) {
       return info.param.description;
     }
 );
 
-TEST_P(FtStrlenTest, string_length) {
+TEST_P(FtStrlenTestArgs, string_length) {
   const auto& test_case = GetParam();
   compareStrlenBehavior(test_case.str);
 }
 
 // Non-parameterized tests for special scenarios
 
-TEST_F(FtStrlenTest, very_long_strings) {
+TEST_F(FtStrlenTestArgs, very_long_strings) {
   std::string long_str1(1000, 'a');
   std::string long_str2(20000, 'y');
   std::string long_str3(50000, 'z');
@@ -78,7 +78,7 @@ TEST_F(FtStrlenTest, very_long_strings) {
   EXPECT_EQ(ft_strlen(long_str3.c_str()), 50000);
 }
 
-TEST_F(FtStrlenTest, errno_preservation) {
+TEST_F(FtStrlenTestArgs, errno_preservation) {
   const char* test_str = "hello world";
   
   // Test errno preservation with normal string
@@ -124,7 +124,7 @@ TEST_F(FtStrlenTest, errno_preservation) {
   EXPECT_EQ(ft_result, 1000);
 }
 
-TEST_F(FtStrlenTest, null_termination_behavior) {
+TEST_F(FtStrlenTestArgs, null_termination_behavior) {
   // Test string with null byte in middle (should stop at first null)
   const char null_in_middle[] = "hello\0world";
   compareStrlenBehavior(null_in_middle);
