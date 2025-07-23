@@ -14,6 +14,7 @@ SRCS += ft_strdup.s
 
 B_SRCS :=
 B_SRCS += ft_atoi_base.s
+B_SRCS += utils/ft_isspace.s
 
 OBJS := $(addprefix $(SRCDIR)/, $(SRCS:.s=.o))
 B_OBJS := $(addprefix $(SRCDIR)/, $(B_SRCS:.s=.o))
@@ -63,3 +64,9 @@ build:
 .PHONY: test
 test: build
 	cd $(BUILD_DIR)/tests && make test
+
+.PHONY: benchmark
+benchmark: bonus
+	$(CC) -O2 benchmark_atoi_base.c src/ft_atoi_base_reference.c -L. -lasm -o benchmark_atoi_base
+	./benchmark_atoi_base
+	rm -f benchmark_atoi_base

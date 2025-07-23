@@ -6,4 +6,6 @@
 
 int ft_atoi_base(const char *str, const char *base) __THROW __attribute_pure__ __nonnull((1, 2));
 
+int ft_isspace(int c);
+
 #endif /* LIBASM_BONUS_H */
