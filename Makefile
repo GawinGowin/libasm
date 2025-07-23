@@ -13,6 +13,7 @@ SRCS += ft_read.s
 SRCS += ft_strdup.s
 
 B_SRCS :=
+B_SRCS += ft_atoi_base_bonus.s
 
 OBJS := $(addprefix $(SRCDIR)/, $(SRCS:.s=.o))
 B_OBJS := $(addprefix $(SRCDIR)/, $(B_SRCS:_bonus.s=_bonus.o))
