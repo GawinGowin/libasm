@@ -15,6 +15,8 @@ SRCS += ft_strdup.s
 B_SRCS :=
 B_SRCS += ft_atoi_base.s
 B_SRCS += utils/ft_isspace.s
+B_SRCS += utils/ft_strspn.s
+B_SRCS += utils/ft_strchr.s
 
 OBJS := $(addprefix $(SRCDIR)/, $(SRCS:.s=.o))
 B_OBJS := $(addprefix $(SRCDIR)/, $(B_SRCS:.s=.o))

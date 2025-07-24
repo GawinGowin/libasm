@@ -8,6 +8,9 @@ int ft_atoi_base(const char *str, const char *base) __THROW __attribute_pure__ _
 
 int ft_isspace(int c);
 
-size_t ft_strspn(const char *__s, const char *__accept) __THROW __attribute_pure__ __nonnull((1, 2));
+size_t ft_strspn(const char *__s, const char *__accept) __THROW __attribute_pure__
+    __nonnull((1, 2));
+
+char *ft_strchr(const char *__s, int __c) __THROW __attribute_pure__ __nonnull((1));
 
 #endif /* LIBASM_BONUS_H */
